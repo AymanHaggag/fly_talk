@@ -7,6 +7,8 @@ import 'package:fly_talk/modules/login/cubit/user_cubet.dart';
 import 'package:fly_talk/modules/login/cubit/user_states.dart';
 import 'package:fly_talk/modules/login/login_screen.dart';
 import 'package:fly_talk/services/cash_helper.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'bloc_observer.dart';
 import 'constants.dart';
@@ -18,6 +20,16 @@ void main() async {
   Bloc.observer = MyBlocObserver();
   await CacheHelper.init();
   uId = await CacheHelper.getData(key: "uId");
+  var deviceToken = await FirebaseMessaging.instance.getToken();
+  print(deviceToken);
+
+  FirebaseMessaging.onMessage.listen((event) {
+    print(event.data.toString());
+  });
+  FirebaseMessaging.onMessageOpenedApp.listen((event) {
+    print(event.data.toString());
+  });
+
   print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> uId = $uId");
   Widget openingScreen = LoginScreen();
   if (uId != null){
@@ -40,7 +52,7 @@ class MyApp extends StatelessWidget {
       create: (context) =>  UserCubit(UserInitialState())..getUserData(),
 ),
     BlocProvider(
-      create: (context) => SocialCubit(SocialInitialState()),
+      create: (context) => SocialCubit(SocialInitialState())..getPosts()..getAllUsers(),
     ),
   ],
   child: BlocConsumer<UserCubit, UserStates>(

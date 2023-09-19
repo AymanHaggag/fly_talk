@@ -1,12 +1,29 @@
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fly_talk/layout/Cubit/social_cubit.dart';
+import 'package:fly_talk/layout/Cubit/social_states.dart';
+import 'package:fly_talk/models/post_model.dart';
+import 'package:fly_talk/modules/login/cubit/user_cubet.dart';
+import 'package:fly_talk/modules/login/cubit/user_states.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:line_icons/line_icons.dart';
+
+import '../../widgets/post_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
+
+
   @override
   Widget build(BuildContext context) {
+    return BlocConsumer<SocialCubit, SocialStates>(
+  listener: (context, state) {
+    // TODO: implement listener
+  },
+  builder: (context, state) {
+    List<PostModel> postList = SocialCubit.get(context).postsList;
     return Scaffold(
         body: Padding(
       padding: const EdgeInsets.all(8.0),
@@ -35,17 +52,33 @@ class HomeScreen extends StatelessWidget {
                 )
               ]),
             ),
-            ListView.separated(
-              shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (context ,index) => postCard(context),
-                separatorBuilder: (context ,index) => SizedBox(height: 10,),
-                itemCount: 10),
+            ConditionalBuilder(
+                condition: postList.isNotEmpty || state !is SocialGetPostsLoadingState || state !is UserGetUserLoadingState,
+                builder: (context) => ListView.separated(
+    shrinkWrap: true,
+    physics: NeverScrollableScrollPhysics(),
+    itemBuilder: (context ,index) => postCard(
+    context: context,
+    name: UserCubit.get(context).currentUser!.name as String,
+    profileImage: UserCubit.get(context).currentUser!.image as String,
+    dateTime: postList[index].dateTime ?? "null value" ,
+    postBody: postList[index].postBody ?? "null value",
+    postImage: postList[index].postImage ?? "null value",
+    numberOfLikes: 0,
+    numberOfComments: 0,
+        index: index
+    ),
+    separatorBuilder: (context ,index) => SizedBox(height: 10,),
+    itemCount: postList.length) ,
+                fallback: (context) => Center(child: Text("No Posts To Show"),)),
+
            
           ],
         ),
       ),
     ));
+  },
+);
   }
 }
 
@@ -53,155 +86,3 @@ class HomeScreen extends StatelessWidget {
 
 
 
-Widget? postCard (context){
-   return Container(
-     decoration: BoxDecoration(
-       boxShadow: [
-         // BoxShadow(
-         //   color: Colors.grey, // Shadow color
-         //   blurRadius: 5.0,   // Spread radius
-         //   offset: Offset(0, 3), // Offset in the x and y direction
-         // ),
-         // BoxShadow(
-         //   color: Colors.black.withOpacity(0.6),
-         //   offset: Offset(
-         //     0.0,
-         //     10.0,
-         //   ),
-         //   blurRadius: 10.0,
-         //   spreadRadius: -6.0,
-         // ),
-       ],
-     ),
-     child: Card(
-       // clipBehavior: Clip.antiAliasWithSaveLayer,
-       // elevation: 5.0,
-       // margin: EdgeInsets.all(
-       //   8.0,
-       // ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundImage: NetworkImage(
-                        "https://img.freepik.com/free-photo/satisfied-lovely-woman-holds-modern-cell-phone_273609-28232.jpg?w=1060&t=st=1693541874~exp=1693542474~hmac=fc1bffa9b0dc2e5b3ab579f70318aaa26536af1ee033b84f7c6ec17ef69bf4fd"),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              "Isabella Thompson",
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Icon(
-                              Icons.verified,
-                              color: Colors.blue,
-                              size: 15,
-                            )
-                          ],
-                        ),
-                        Text(
-                          "1 September, 2023 at 12:30 am",
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.black.withOpacity(.7)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.more_horiz),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Container(
-                  height: 1,
-                  color: Colors.grey,
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Text(
-                      "\"Embrace the journey of today with the hope of a better tomorrow, for every step you take is a stride toward your dreams.\"")),
-              Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      "https://img.freepik.com/free-photo/silhouette-people-happy-time_1150-5360.jpg?w=1060&t=st=1693546098~exp=1693546698~hmac=9b9169484475fbc665d2a54409f2034288b93533b4db3a0ae8cb0b4aaafa1093",
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: [
-                  InkWell(
-                    onTap: (){},
-                    child: Row(children: [
-                      FaIcon(FontAwesomeIcons.heart,color: Colors.red,size: 20,),
-                      SizedBox(width: 5,),
-                      Text(" 3K ")
-                    ],),
-                  ),
-                  Spacer(),
-                  InkWell(
-                    onTap: (){},
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        FaIcon(FontAwesomeIcons.comment,color: Colors.amber,size: 20),
-                        SizedBox(width: 5,),
-                        Text("150 comment"),
-                      ],),
-                  ),
-                ],),
-              SizedBox(
-                height: 10,
-              ),
-              Row(children: [
-                CircleAvatar(
-                  radius: 25,
-                  backgroundImage: NetworkImage(
-                      "https://img.freepik.com/free-photo/satisfied-lovely-woman-holds-modern-cell-phone_273609-28232.jpg?w=1060&t=st=1693541874~exp=1693542474~hmac=fc1bffa9b0dc2e5b3ab579f70318aaa26536af1ee033b84f7c6ec17ef69bf4fd"),
-                ),
-                SizedBox(width: 8,),
-                Text("Write a comment...")
-              ],),
-            ],
-          ),
-        ),
-      ),
-  ),
-   ) ;
-}
