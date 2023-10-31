@@ -50,7 +50,7 @@ class LoginScreen extends StatelessWidget {
                     height: 10,
                   ),
                   const Text(
-                    'Fill Your Details To See Our Latest Offers',
+                    'Fill Your Details To Connect To The World',
                     style: TextStyle(fontSize: 15),
                   ),
                   const SizedBox(

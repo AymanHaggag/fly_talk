@@ -16,10 +16,12 @@ import 'layout/social_layout.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp().whenComplete(() => (){print(">>>>>Completed");});
+  await Firebase.initializeApp();
   Bloc.observer = MyBlocObserver();
   await CacheHelper.init();
-  uId = await CacheHelper.getData(key: "uId");
+  uId = await CacheHelper.getData(key: "uId").then((value) {
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> uId = $uId");
+  });
   var deviceToken = await FirebaseMessaging.instance.getToken();
   print(deviceToken);
 
@@ -30,7 +32,6 @@ void main() async {
     print(event.data.toString());
   });
 
-  print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> uId = $uId");
   Widget openingScreen = LoginScreen();
   if (uId != null){
     openingScreen = SocialLayoutScreen();
@@ -43,7 +44,7 @@ void main() async {
 class MyApp extends StatelessWidget {
    MyApp({required this.openingScreen ,super.key});
  Widget openingScreen;
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context)  {
     return MultiBlocProvider(
